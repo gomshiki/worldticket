@@ -1,0 +1,23 @@
+version: '3.1'
+services: # 컨테이너
+  db:
+    image: mysql:8.0.33
+    container_name: mysql-fifo
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: fifo
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    command:
+      - --skip-character-set-client-handshake
+    #volumes:
+     # - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+
+  redis_container:
+    image: redis:6.2.5
+    container_name: redis-fifo
+    restart: always
+    ports:
+      - "6379:6379"
