@@ -1,19 +1,31 @@
 version: '3.1'
 services: # 컨테이너
-  db:
-    image: mysql:8.0.33
-    container_name: mysql-fifo
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: fifo
-      TZ: Asia/Seoul
+  myapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
-      - "3306:3306"
-    command:
-      - --skip-character-set-client-handshake
+      - "8080:8080"
+
+  db:
+    image: postgres:15
+    restart: always
+    container_name: postgresql-fifo
     #volumes:
-     # - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+     # - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL",  "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      retries: 10
 
   redis_container:
     image: redis:6.2.5
