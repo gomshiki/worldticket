@@ -36,6 +36,11 @@ public class EncryptUtil {
         return passwordEncoder.encode(password);
     }
 
+    // 암호 검증
+    public boolean validatePassword(String password, String savedPassword) {
+        return passwordEncoder.matches(password, savedPassword);
+    }
+
     // 암호화
     private String encrypt(String target) {
         byte[] encrypt = aesBytesEncryptor.encrypt(target.getBytes(StandardCharsets.UTF_8));

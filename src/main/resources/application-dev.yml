@@ -23,11 +23,28 @@ spring:
       host: localhost
       port: 6379
 
+#### email properties ####
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: worldticket62@gmail.com
+    password: rfnx zthq qufn hdmz
+    properties:
+      mail.smtp:
+          auth: true
+          starttls.enable: true
+
+#### JWT properties ####
+jwt:
+  secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
+  access-expiration-time: 86400000 # 액세스 토큰 유효시간 1일(밀리초 단위, 1s = 1000ms)
+  refresh-expiration-time: 259200000 # 리프레시 토큰 유효시간 3일(밀리초 단위, 1s = 1000ms)
+
 server.port: 8080
 
+#### symmetric properties ####
 symmetric:
   key: Zmlmby1zcHJpbmdib290LWhhbmdoYWVwcm9qZWN0LXNlY3JldGtleS1qc2tpbS05NDEwMTItOTQxMTE0LW5hdmFsYXJjaHRlY3R1cmUtY2hhaW5zbW9rZXItY29sZHBsYXkK
-
 
 # 로그 설정
 #logging:

@@ -1,4 +1,4 @@
-package com.worldticket.fifo.authentication;
+package com.worldticket.fifo.globalconfig;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfiguration {
+public class SecurityConfig {
 
     @Value("${symmetric.key}")
     private String symmetricKey;
