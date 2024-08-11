@@ -22,28 +22,22 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
 
-    @NotBlank
     @Column(nullable = false)
     private String password;
 
-    @NotBlank
     @Column(nullable = false)
     private String memberName;
 
     @Email(message = "유효한 이메일이 아닙니다.")
-    @NotBlank
     @Column(nullable = false)
     private String email;
 
-    @NotBlank
     @Column(nullable = false)
     private String phoneNumber;
 
-    @NotBlank
     @Column(nullable = false)
     private String address1;
 
-    @NotBlank
     @Column(nullable = false)
     private String address2;
 

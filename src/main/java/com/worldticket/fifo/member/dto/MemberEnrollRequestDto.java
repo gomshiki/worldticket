@@ -13,7 +13,7 @@ import lombok.*;
 public class MemberEnrollRequestDto {
 
     @NotBlank(message = "이름을 입력해주세요")
-    @Size(min =2, max = 50, message = "이름은 2자 이상 50자 이하로 입력해주세요")
+    @Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하로 입력해주세요")
     private String memberName;
 
     @NotBlank(message = "이메일을 입력해주세요")
@@ -27,7 +27,7 @@ public class MemberEnrollRequestDto {
     private String address2;
 
     @NotBlank(message = "전화번호를 입력해주세요")
-    @Size(min=10, max = 15)
+    @Size(min = 10, max = 15)
     private String phoneNumber;
 
     @NotBlank(message = "비밀번호를 입력해주세요")

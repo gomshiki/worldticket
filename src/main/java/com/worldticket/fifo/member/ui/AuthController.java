@@ -20,13 +20,9 @@ public class AuthController {
     private final TokenAuthService tokenAuthService;
 
     @PostMapping("/email/send")
-    public ResponseEntity<Map<String, String>> sendAuthCode(@RequestBody @Valid EmailRequestDto emailRequestDto) {
+    public ResponseEntity<?> sendAuthCode(@RequestBody @Valid EmailRequestDto emailRequestDto) {
         emailSendService.sendAuthEmail(emailRequestDto.getEmail());
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "이메일이 성공적으로 전송되었습니다.");
-
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok("이메일이 성공적으로 전송되었습니다.");
     }
 
     @PostMapping("/email/confirm")
