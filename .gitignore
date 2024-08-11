@@ -38,3 +38,10 @@ out/
 
 ### include src ###
 !src/main/resources/**
+
+# Ignore application configuration files
+application.yml
+application-dev.yml
+
+# Other ignored files
+.env
