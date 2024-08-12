@@ -20,6 +20,9 @@ public class Ticket {
     @Column(name = "ticket_id")
     private UUID ticketId;
 
+    @Column(name = "event_id", insertable = false, updatable = false)
+    private Long eventId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
@@ -65,7 +68,7 @@ public class Ticket {
             Event event, LocalDateTime openTimeStamp, TicketGrade ticketGrade, int seatNumber, int price,
             TicketStatus ticketStatus, Display display
     ) {
-        this(UUID.randomUUID(), event, openTimeStamp, ticketGrade, seatNumber, price, null, null,
+        this(null, event, openTimeStamp, ticketGrade, seatNumber, price, null, null,
                 ticketStatus, display);
     }
 
@@ -84,4 +87,11 @@ public class Ticket {
         this.ticketStatus = ticketStatus;
         this.display = display;
     }
+
+    // 상태 변경 메서드
+    public void changeTicketStatus(TicketStatus newStatus) {
+        this.ticketStatus = newStatus;
+        this.updateAt = LocalDateTime.now(); // 상태 변경 시점 기록
+    }
+
 }
