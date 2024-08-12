@@ -1,5 +1,6 @@
 package com.worldticket.fifo.globalutilities.config;
 
+import com.worldticket.fifo.globalutilities.jwt.JwtFilter;
 import com.worldticket.fifo.globalutilities.provider.TokenProvider;
 import com.worldticket.fifo.globalutilities.jwt.JwtAccessDeniedHandler;
 import com.worldticket.fifo.globalutilities.jwt.JwtAuthenticationEntryPoint;
@@ -16,7 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @AllArgsConstructor
 @Configuration
@@ -29,7 +30,7 @@ public class SecurityConfig {
 
     // 비밀번호 단방향 암호는 BcryptPasswordEncoder 구현체 사용
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -37,30 +38,24 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
-                .requestMatchers("/favicon.lco");
+                .requestMatchers("/favicon.ico");
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .exceptionHandling((handling) ->
                         handling.authenticationEntryPoint(jwtAuthenticationEntryPoint)
                                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .headers((header) -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                .sessionManagement((session)->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((registry) ->
-                        registry.requestMatchers(
-                                        new AntPathRequestMatcher("/member/**"),
-                                        new AntPathRequestMatcher("/auth/**")
-                                )
-                                .permitAll()
+                        registry.requestMatchers("/auth/**", "/member/**").permitAll()
                                 .anyRequest().authenticated()
-                )
-                .apply(new JwtSecurityConfig(tokenProvider));
+                ).addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 }
-
-

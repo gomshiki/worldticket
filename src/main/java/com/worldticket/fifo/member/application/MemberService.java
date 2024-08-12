@@ -3,10 +3,13 @@ package com.worldticket.fifo.member.application;
 import com.worldticket.fifo.globalutilities.provider.RedisProvider;
 import com.worldticket.fifo.globalutilities.provider.TokenProvider;
 import com.worldticket.fifo.member.domain.Member;
+import com.worldticket.fifo.member.domain.MemberRepository;
 import com.worldticket.fifo.member.dto.LoginRequestDto;
 import com.worldticket.fifo.member.dto.MemberEnrollRequestDto;
+import com.worldticket.fifo.member.dto.MemberResponseDto;
+import com.worldticket.fifo.member.infra.AuthorizationException;
 import com.worldticket.fifo.member.infra.EncryptUtil;
-import com.worldticket.fifo.member.domain.MemberRepository;
+import com.worldticket.fifo.member.infra.MemberNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,11 +32,9 @@ public class MemberService implements UserDetailsService {
     }
 
     public void login(LoginRequestDto loginRequestDto) {
-        Member member = memberRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(
-                () -> new IllegalArgumentException("해당하는 회원아이디 또는 비밀번호가 없습니다."));
-
+        Member member = memberRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(MemberNotFoundException::new);
         if (!encryptUtil.validatePassword(loginRequestDto.getPassword(), member.getPassword())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new MemberNotFoundException();
         }
     }
 
@@ -42,9 +43,21 @@ public class MemberService implements UserDetailsService {
         redisProvider.deleteData(email);
     }
 
+    public MemberResponseDto findMember(String token) {
+        if (!tokenProvider.validateToken(token)) {
+            throw new AuthorizationException();
+        }
+        String email = tokenProvider.extractEmail(token);
+        Member foundMember = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+
+        return new MemberResponseDto(
+                foundMember.getMemberId(), foundMember.getMemberName(), foundMember.getEmail()
+        );
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 회원이 없습니다."));
+                .orElseThrow(MemberNotFoundException::new);
     }
 }

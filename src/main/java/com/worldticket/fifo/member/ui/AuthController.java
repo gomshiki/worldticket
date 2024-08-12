@@ -2,11 +2,8 @@ package com.worldticket.fifo.member.ui;
 
 import com.worldticket.fifo.globalutilities.provider.TokenProvider;
 import com.worldticket.fifo.member.application.AuthService;
-import com.worldticket.fifo.member.dto.AuthCodeRequestDto;
-import com.worldticket.fifo.member.dto.EmailRequestDto;
+import com.worldticket.fifo.member.dto.*;
 import com.worldticket.fifo.member.application.EmailAuthService;
-import com.worldticket.fifo.member.dto.LoginRequestDto;
-import com.worldticket.fifo.member.dto.TokenResponseDto;
 import com.worldticket.fifo.member.infra.MemberResponseMessage;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -51,6 +48,18 @@ public class AuthController {
         );
     }
 
+    @PostMapping("/token/reissue")
+    public ResponseEntity<?> reissueToken(@Valid @RequestBody TokenRequestDto tokenRequestDto) {
+        TokenResponseDto ReissuedTokenDto = authService.reissueToken(tokenRequestDto);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", "Bearer " + ReissuedTokenDto.getAccessToken());
+        httpHeaders.add("Refresh-Token", "Bearer " + ReissuedTokenDto.getRefreshToken());
 
-
+        return ResponseEntity.ok().headers(httpHeaders).body(
+                Map.of(
+                        "access_token", ReissuedTokenDto.getAccessToken(),
+                        "refresh_token", ReissuedTokenDto.getRefreshToken()
+                )
+        );
+    }
 }

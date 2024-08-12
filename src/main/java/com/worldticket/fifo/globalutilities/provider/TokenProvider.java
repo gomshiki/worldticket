@@ -1,5 +1,6 @@
 package com.worldticket.fifo.globalutilities.provider;
 
+import com.worldticket.fifo.member.infra.AuthorizationException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -17,6 +18,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -66,10 +68,22 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
+    public String createAccessToken(String email) {
+        Date now = new Date();
+        Date expireDate = new Date(now.getTime() + accessExpiration);
+
+        // Access Token 생성
+        return Jwts.builder()
+                .setSubject(email)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(expireDate)
+                .compact();
+    }
+
     public String createRefreshToken(Authentication authentication) {
         Claims claims = Jwts.claims().setSubject(authentication.getName());
         Date now = new Date();
-        Date expireDate = new Date(now.getTime() + this.refreshExpiration);
+        Date expireDate = new Date(now.getTime() + refreshExpiration);
         String refreshToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
@@ -82,29 +96,53 @@ public class TokenProvider implements InitializingBean {
         return refreshToken;
     }
 
+    public String createRefreshToken(String email) {
+        Claims claims = Jwts.claims().setSubject(email);
+        Date now = new Date();
+        Date expireDate = new Date(now.getTime() + refreshExpiration);
+        String refreshToken = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(expireDate)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        redisProvider.setDataExpire(email, refreshToken,
+                TimeUnit.MILLISECONDS.toMillis(expireDate.getTime() - now.getTime()));
+        return refreshToken;
+    }
+
     public String extractEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료되었더라도 이메일을 추출
+            return e.getClaims().getSubject();
+        }
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return !claims.getBody().getExpiration().before(new Date());
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            log.warn("잘못된 JWT 서명입니다.");
+            return false;
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
+            return false;
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            log.warn("지원되지 않는 JWT 토큰입니다.");
+            return false;
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            log.error("JWT 토큰이 잘못되었습니다.");
+            return false;
         }
-        return false;
     }
 
     public Authentication getAuthentication(String token) {
@@ -117,8 +155,12 @@ public class TokenProvider implements InitializingBean {
                 .getBody();
 
         // Claim 에서 권한정보들을 빼냄
+        String authoritiesClaim = Optional.ofNullable(claims.get(AUTHORITIES_KEY))
+                .map(Object::toString)
+                .orElseThrow(() -> new AuthorizationException("토큰에 권한정보가 없습니다."));
+
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                Arrays.stream(authoritiesClaim.split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
@@ -127,6 +169,5 @@ public class TokenProvider implements InitializingBean {
 
         // 유저정보, 토큰, 권한정보를 가진 Authentication 객체 리턴
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
-
     }
 }

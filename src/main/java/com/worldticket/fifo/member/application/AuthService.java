@@ -4,7 +4,9 @@ import com.worldticket.fifo.globalutilities.provider.RedisProvider;
 import com.worldticket.fifo.globalutilities.provider.TokenProvider;
 import com.worldticket.fifo.member.domain.Member;
 import com.worldticket.fifo.member.dto.LoginRequestDto;
+import com.worldticket.fifo.member.dto.TokenRequestDto;
 import com.worldticket.fifo.member.dto.TokenResponseDto;
+import com.worldticket.fifo.member.infra.AuthorizationException;
 import com.worldticket.fifo.member.infra.MemberNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,4 +44,17 @@ public class AuthService {
     }
 
 
+    public TokenResponseDto reissueToken(TokenRequestDto tokenRequestDto) {
+        String email = tokenProvider.extractEmail(tokenRequestDto.getAccessToken());
+        String storedRefreshToken = redisProvider.getData(email);
+        if (tokenProvider.validateToken(storedRefreshToken)) {
+            if (tokenRequestDto.getRefreshToken().equals(storedRefreshToken)) {
+                // 토큰 재발급
+                String newAccessToken = tokenProvider.createAccessToken(email);
+                String newRefreshToken = tokenProvider.createRefreshToken(email);
+                return new TokenResponseDto(newAccessToken, newRefreshToken);
+            }
+        }
+        throw new AuthorizationException("토큰 재발급에 실패하였습니다.");
+    }
 }

@@ -1,7 +1,9 @@
 package com.worldticket.fifo.member.infra;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public enum MemberResponseMessage {
     LOGIN_SUCCESS("로그인 성공"),
@@ -17,8 +19,4 @@ public enum MemberResponseMessage {
     LOGOUT_SUCCESS("로그아웃 성공");
 
     private final String message;
-
-    public String getMessage() {
-        return message;
-    }
 }
