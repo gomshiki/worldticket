@@ -1,4 +1,4 @@
-package com.worldticket.fifo.member.application;
+package com.worldticket.fifo.globalutilities.provider;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -9,7 +9,7 @@ import java.time.Duration;
 
 @AllArgsConstructor
 @Service
-public class RedisService {
+public class RedisProvider {
     private final RedisTemplate<String, String> redisTemplate;
 
     public String getData(String key) {//지정된 키(key)에 해당하는 데이터를 Redis에서 가져오는 메서드

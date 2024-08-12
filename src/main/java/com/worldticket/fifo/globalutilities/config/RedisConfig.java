@@ -1,4 +1,4 @@
-package com.worldticket.fifo.globalconfig;
+package com.worldticket.fifo.globalutilities.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

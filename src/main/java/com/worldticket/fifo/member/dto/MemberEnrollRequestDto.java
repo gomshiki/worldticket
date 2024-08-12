@@ -42,6 +42,7 @@ public class MemberEnrollRequestDto {
                 .address2(memberEnrollRequestDto.getAddress2())
                 .email(memberEnrollRequestDto.getEmail())
                 .phoneNumber(memberEnrollRequestDto.getPhoneNumber())
+                .role("ROLE_USER")
                 .build();
     }
 
