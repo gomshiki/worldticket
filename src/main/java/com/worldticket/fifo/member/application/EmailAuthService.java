@@ -1,5 +1,6 @@
 package com.worldticket.fifo.member.application;
 
+import com.worldticket.fifo.globalutilities.provider.RedisProvider;
 import com.worldticket.fifo.member.dto.AuthCodeRequestDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -16,7 +17,7 @@ import java.util.Random;
 public class EmailAuthService {
     private static final Random random = new Random();
 
-    private final RedisService redisService;
+    private final RedisProvider redisProvider;
     private final JavaMailSender javaMailSender;
 
     @Value("${spring.mail.username}")
@@ -29,7 +30,7 @@ public class EmailAuthService {
             sendEmail(username, email, "[worldticket] 회원 가입을 위한 이메일입니다", content);
 
             // redis 에 인증코드 저장
-            redisService.setDataExpire(email, Integer.toString(authNumber), 60 * 3L);
+            redisProvider.setDataExpire(email, Integer.toString(authNumber), 60 * 3L);
         } catch (RuntimeException e) {
             throw new RuntimeException("메일 전송 중 에러가 발생했습니다.", e);
         }
@@ -70,7 +71,7 @@ public class EmailAuthService {
     }
 
     public void confirmCode(AuthCodeRequestDto authCodeRequestDto) {
-        String retrivedCode = redisService.getData(authCodeRequestDto.getEmail());
+        String retrivedCode = redisProvider.getData(authCodeRequestDto.getEmail());
         if (!retrivedCode.equals(authCodeRequestDto.getCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }

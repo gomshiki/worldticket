@@ -1,6 +1,8 @@
 package com.worldticket.fifo;
 
+import com.worldticket.fifo.globalutilities.annotations.DataNotFoundException;
 import com.worldticket.fifo.member.infra.AuthorizationException;
+import com.worldticket.fifo.member.infra.MemberNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,4 +47,15 @@ public class GlabalExceptionHandler {
     public ResponseEntity<String> handleAuthorizationException(AuthorizationException ex) {
         return new ResponseEntity<>("Authorization Exception: " + ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity<String> handleMemberNotFoundException(MemberNotFoundException ex) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<String> handleMemberNotFoundException(DataNotFoundException ex) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

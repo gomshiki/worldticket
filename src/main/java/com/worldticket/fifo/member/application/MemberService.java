@@ -1,28 +1,28 @@
 package com.worldticket.fifo.member.application;
 
+import com.worldticket.fifo.globalutilities.provider.RedisProvider;
+import com.worldticket.fifo.globalutilities.provider.TokenProvider;
 import com.worldticket.fifo.member.domain.Member;
+import com.worldticket.fifo.member.domain.MemberRepository;
 import com.worldticket.fifo.member.dto.LoginRequestDto;
 import com.worldticket.fifo.member.dto.MemberEnrollRequestDto;
-import com.worldticket.fifo.member.dto.MemberEnrollResponseDto;
-import com.worldticket.fifo.member.dto.TokenResponseDto;
+import com.worldticket.fifo.member.dto.MemberResponseDto;
+import com.worldticket.fifo.member.infra.AuthorizationException;
 import com.worldticket.fifo.member.infra.EncryptUtil;
-import com.worldticket.fifo.member.domain.MemberRepository;
 import com.worldticket.fifo.member.infra.MemberNotFoundException;
+import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+@AllArgsConstructor
 @Service
-public class MemberService {
+public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
-    private final TokenAuthService tokenAuthService;
     private final EncryptUtil encryptUtil;
-    private final RedisService redisService;
-
-    public MemberService(MemberRepository jpaMemberRepository, TokenAuthService tokenAuthService, EncryptUtil encryptUtil, RedisService redisService) {
-        this.memberRepository = jpaMemberRepository;
-        this.tokenAuthService = tokenAuthService;
-        this.encryptUtil = encryptUtil;
-        this.redisService = redisService;
-    }
+    private final TokenProvider tokenProvider;
+    private final RedisProvider redisProvider;
 
     public void enrollMember(MemberEnrollRequestDto memberEnrollRequestDto) {
         Member member = MemberEnrollRequestDto.from(memberEnrollRequestDto);
@@ -31,22 +31,33 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public TokenResponseDto login(LoginRequestDto loginRequestDto) {
-        String email = loginRequestDto.getEmail();
-        Member foundMember = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        if(!encryptUtil.validatePassword(loginRequestDto.getPassword(), foundMember.getPassword())){
-            throw new IllegalArgumentException("유효하지 않은 아이디와 패스워드입니다.");
+    public void login(LoginRequestDto loginRequestDto) {
+        Member member = memberRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(MemberNotFoundException::new);
+        if (!encryptUtil.validatePassword(loginRequestDto.getPassword(), member.getPassword())) {
+            throw new MemberNotFoundException();
         }
-
-        // 토큰 생성
-        String accessToken = tokenAuthService.createAccessToken(email);
-        String refreshToken = tokenAuthService.createRefreshToken(email);
-
-        return new TokenResponseDto(accessToken, refreshToken);
     }
 
     public void logout(String refreshToken) {
-        String email = tokenAuthService.extractEmail(refreshToken);
-        redisService.deleteData(email);
+        String email = tokenProvider.extractEmail(refreshToken);
+        redisProvider.deleteData(email);
+    }
+
+    public MemberResponseDto findMember(String token) {
+        if (!tokenProvider.validateToken(token)) {
+            throw new AuthorizationException();
+        }
+        String email = tokenProvider.extractEmail(token);
+        Member foundMember = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+
+        return new MemberResponseDto(
+                foundMember.getMemberId(), foundMember.getMemberName(), foundMember.getEmail()
+        );
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
     }
 }

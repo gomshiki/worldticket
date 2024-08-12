@@ -1,20 +1,22 @@
-package com.worldticket.fifo.member.application;
+package com.worldticket.fifo.globalutilities.provider;
 
+import com.worldticket.fifo.globalutilities.annotations.DataNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
-public class RedisService {
+public class RedisProvider {
     private final RedisTemplate<String, String> redisTemplate;
 
     public String getData(String key) {//지정된 키(key)에 해당하는 데이터를 Redis에서 가져오는 메서드
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        return valueOperations.get(key);
+        return Optional.ofNullable(valueOperations.get(key)).orElseThrow(DataNotFoundException::new);
     }
 
     public void setData(String key, String value) {//지정된 키(key)에 값을 저장하는 메서드
