@@ -3,6 +3,6 @@ package com.worldticket.fifo.event.infra.enums;
 public enum TicketStatus {
     ENROLLED,
     RESERVED,
-    SOLD,
-    REFUNDING
+    ORDERED,
+    SOLD
 }

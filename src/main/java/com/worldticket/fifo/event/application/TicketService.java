@@ -1,15 +1,18 @@
 package com.worldticket.fifo.event.application;
 
 import com.worldticket.fifo.event.domain.*;
+import com.worldticket.fifo.event.dto.EventResponseDto;
 import com.worldticket.fifo.event.dto.TicketDetailRequestDto;
 import com.worldticket.fifo.event.dto.TicketRequestDto;
 import com.worldticket.fifo.event.dto.TicketResponseDto;
+import com.worldticket.fifo.event.infra.enums.Display;
 import com.worldticket.fifo.event.infra.enums.TicketGrade;
 import com.worldticket.fifo.event.infra.enums.TicketStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,7 +26,7 @@ public class TicketService {
         this.ticketRepository = ticketRepository;
     }
 
-    public void save(TicketRequestDto ticketRequestDto) {
+    public void saveTickets(TicketRequestDto ticketRequestDto) {
         // 1. 행사정보 확인
         if (!eventRepository.existsById(ticketRequestDto.getEventId())) {
             throw new IllegalArgumentException("해당하는 행사정보가 없습니다.");
@@ -37,8 +40,9 @@ public class TicketService {
                                 typeDto.getTicketGrade(), // TicketGrade 설정
                                 i + 1, // 좌석 번호 (0부터 시작하므로 +1)
                                 typeDto.getPrice(), // 가격 설정
-                                ticketRequestDto.getTicketStatus(), // 티켓 상태
-                                ticketRequestDto.getDisplay() // 표시 여부
+                                UUID.randomUUID(),
+                                Display.NO,
+                                TicketStatus.ENROLLED
                         ))
                 )
                 .collect(Collectors.toList());
@@ -47,13 +51,9 @@ public class TicketService {
     }
 
     public List<TicketResponseDto> findTickets(Long eventId) {
-        // 티켓 조회
-        if (!ticketRepository.existsByEventId(eventId)) {
-            throw new IllegalArgumentException("해당하는 티켓의 행사 정보가 없습니다.");
-        }
-        return ticketRepository.findByEventIdAndTicketStatus(eventId, TicketStatus.ENROLLED).stream()
+        return ticketRepository.findByEventEventIdAndTicketStatus(eventId, TicketStatus.ENROLLED).stream()
                 .map(ticket -> new TicketResponseDto(
-                        ticket.getEvent().getEventId(),
+                        eventId,
                         ticket.getTicketGrade(),
                         ticket.getSeatNumber(),
                         ticket.getPrice()))
@@ -61,17 +61,12 @@ public class TicketService {
     }
 
     @Transactional
-    public String findTicketsDetail(TicketDetailRequestDto ticketDetailRequestDto) {
-        Ticket ticket = ticketRepository.findByEventIdAndSeatNumberAndTicketGrade(
+    public TicketResponseDto findTicketsDetail(TicketDetailRequestDto ticketDetailRequestDto) {
+        Ticket ticket = ticketRepository.findByEventEventIdAndSeatNumberAndTicketGrade(
                         ticketDetailRequestDto.getEventId(),
                         ticketDetailRequestDto.getSeatNumber(),
                         ticketDetailRequestDto.getTicketGrade())
-                .orElseThrow(
-                        () -> new IllegalArgumentException("해당하는 티켓이 없습니다.")
-                );
-        // 상태변경
-        ticket.changeTicketStatus(TicketStatus.RESERVED);
-
-        return ticket.getTicketStatus().toString();
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 티켓이 없습니다."));
+        return TicketResponseDto.of(ticket);
     }
 }

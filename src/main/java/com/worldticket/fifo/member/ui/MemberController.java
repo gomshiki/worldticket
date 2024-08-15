@@ -6,6 +6,7 @@ import com.worldticket.fifo.member.dto.MemberEnrollRequestDto;
 import com.worldticket.fifo.member.infra.MemberResponseMessage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,11 @@ public class MemberController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Refresh-Token") String refreshToken) {
-        memberService.logout(refreshToken);
-        return ResponseEntity.ok(MemberResponseMessage.LOGOUT_SUCCESS.getMessage());
+        try {
+            memberService.logout(refreshToken);
+            return ResponseEntity.ok(MemberResponseMessage.LOGOUT_SUCCESS.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Logout failed: " + e.getMessage());
+        }
     }
 }

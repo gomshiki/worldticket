@@ -3,9 +3,11 @@ package com.worldticket.fifo.event.dto;
 import com.worldticket.fifo.event.domain.Event;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 public class EventResponseDto {

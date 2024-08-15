@@ -1,36 +1,41 @@
 package com.worldticket.fifo.event.domain;
 
+import com.worldticket.fifo.cart.domain.Cart;
 import com.worldticket.fifo.event.infra.enums.Display;
 import com.worldticket.fifo.event.infra.enums.TicketGrade;
 import com.worldticket.fifo.event.infra.enums.TicketStatus;
+import com.worldticket.fifo.order.domain.Orders;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Table(name = "ticket")
 @Entity
 public class Ticket {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ticket_id")
-    private UUID ticketId;
-
-    @Column(name = "event_id", insertable = false, updatable = false)
-    private Long eventId;
+    private Long ticketId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
 
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Orders orders;
+
     @Column(name = "open_timestamp", nullable = false)
     private LocalDateTime openTimeStamp;
 
-    @Column(name = "ticketGrade", nullable = false)
+    @Column(name = "ticket_grade", nullable = false)
     @Enumerated(EnumType.STRING)
     private TicketGrade ticketGrade;
 
@@ -40,58 +45,34 @@ public class Ticket {
     @Column(name = "price", nullable = false)
     private int price;
 
-    @Column(name = "create_at", updatable = false)
-    private LocalDateTime createAt;
-
-    @Column(name = "update_at")
-    private LocalDateTime updateAt;
+    @Column(name = "ticket_no", nullable = false)
+    private UUID ticketNo;
 
     @Column(name = "ticket_status", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Setter
     private TicketStatus ticketStatus;
 
     @Column(name = "display", nullable = false)
     @Enumerated(EnumType.STRING)
     private Display display;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updateAt = LocalDateTime.now();
-    }
-
     public Ticket(
-            Event event, LocalDateTime openTimeStamp, TicketGrade ticketGrade, int seatNumber, int price,
-            TicketStatus ticketStatus, Display display
+            Event event, LocalDateTime openTimeStamp, TicketGrade ticketGrade, int seatNumber,
+            int price, UUID ticketNo, Display display, TicketStatus ticketStatus
     ) {
-        this(null, event, openTimeStamp, ticketGrade, seatNumber, price, null, null,
-                ticketStatus, display);
-    }
-
-    public Ticket(
-            UUID ticketId, Event event, LocalDateTime openTimeStamp, TicketGrade ticketGrade, int seatNumber,
-            int price, LocalDateTime createAt, LocalDateTime updateAt, TicketStatus ticketStatus, Display display
-    ) {
-        this.ticketId = ticketId;
         this.event = event;
         this.openTimeStamp = openTimeStamp;
         this.ticketGrade = ticketGrade;
         this.seatNumber = seatNumber;
         this.price = price;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-        this.ticketStatus = ticketStatus;
+        this.ticketNo = ticketNo;
         this.display = display;
+        this.ticketStatus = ticketStatus;
     }
 
     // 상태 변경 메서드
     public void changeTicketStatus(TicketStatus newStatus) {
         this.ticketStatus = newStatus;
-        this.updateAt = LocalDateTime.now(); // 상태 변경 시점 기록
     }
-
 }

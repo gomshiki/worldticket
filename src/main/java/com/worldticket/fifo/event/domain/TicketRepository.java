@@ -6,12 +6,14 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface TicketRepository extends CrudRepository<Ticket, UUID> {
-    List<Ticket> findByEventIdAndTicketStatus(Long eventId, TicketStatus ticketStatus);
+public interface TicketRepository extends CrudRepository<Ticket, Long> {
+    Optional<Ticket> findByEventEventId(Long eventId);
 
-    boolean existsByEventId(Long eventId);
+    List<Ticket> findByEventEventIdAndTicketStatus(Long eventId, TicketStatus ticketStatus);
 
-    Optional<Ticket> findByEventIdAndSeatNumberAndTicketGrade(Integer eventId, Integer seatNumber, TicketGrade ticketGrade);
+    // 단건으로 받을 경우: 이벤트 ID와 티켓 상태가 일치하는 첫 번째 티켓을 반환합니다.
+    Optional<Ticket> findFirstByEventEventIdAndTicketIdAndTicketStatus(Long eventId, Long ticketId, TicketStatus ticketStatus);
+
+    Optional<Ticket> findByEventEventIdAndSeatNumberAndTicketGrade(Long eventId, Integer seatNumber, TicketGrade ticketGrade);
 }

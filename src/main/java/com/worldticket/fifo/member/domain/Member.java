@@ -1,5 +1,7 @@
 package com.worldticket.fifo.member.domain;
 
+import com.worldticket.fifo.cart.domain.Cart;
+import com.worldticket.fifo.order.domain.Orders;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -10,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -54,6 +56,9 @@ public class Member implements UserDetails {
 
     @Column
     private String role;
+
+    @OneToMany(mappedBy = "member")
+    private List<Orders> ordersList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
