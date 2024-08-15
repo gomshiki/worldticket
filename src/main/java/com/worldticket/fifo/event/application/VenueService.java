@@ -4,7 +4,10 @@ import com.worldticket.fifo.event.domain.Venue;
 import com.worldticket.fifo.event.domain.VenueRepository;
 import com.worldticket.fifo.event.dto.VenueRequestDto;
 import com.worldticket.fifo.event.dto.VenueResponseDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class VenueService {
@@ -26,5 +29,10 @@ public class VenueService {
         Venue foundVenue = venueRepository.findById(venueId).orElseThrow(
                 () -> new IllegalArgumentException("해당하는 행사장이 없습니다."));
         return VenueResponseDto.of(foundVenue);
+    }
+
+    public List<VenueResponseDto> findVenues() {
+        List<Venue> venueList = venueRepository.findAll();
+        return venueList.stream().map(VenueResponseDto::of).toList();
     }
 }

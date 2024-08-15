@@ -66,13 +66,13 @@ public class EmailAuthService {
             helper.setText(content, true); // content, html: true
             javaMailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("인증번호 이메일 전송에 실패했습니다.", e);
+            throw new RuntimeException("인증번호 이메일 전송에 실패했습니다.");
         }
     }
 
     public void confirmCode(AuthCodeRequestDto authCodeRequestDto) {
-        String retrivedCode = redisProvider.getData(authCodeRequestDto.getEmail());
-        if (!retrivedCode.equals(authCodeRequestDto.getCode())) {
+        String retrievedCode = redisProvider.getData(authCodeRequestDto.getEmail());
+        if (!retrievedCode.equals(authCodeRequestDto.getCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
     }

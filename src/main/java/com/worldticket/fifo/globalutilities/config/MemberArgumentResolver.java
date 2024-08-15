@@ -36,6 +36,6 @@ public class MemberArgumentResolver implements HandlerMethodArgumentResolver {
         }
 
         MemberResponseDto foundMember = memberService.findMember(bearerToken);
-        return new MemberRequestDto(foundMember.getEmail(), foundMember.getMemberName());
+        return new MemberRequestDto(foundMember.getMemberId(), foundMember.getEmail(), foundMember.getMemberName());
     }
 }

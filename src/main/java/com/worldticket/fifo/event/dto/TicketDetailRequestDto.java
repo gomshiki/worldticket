@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TicketDetailRequestDto {
-    private Integer eventId;
+    private Long eventId;
     private Integer seatNumber;
     private TicketGrade ticketGrade;
 }

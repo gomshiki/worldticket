@@ -16,6 +16,4 @@ public class TicketRequestDto {
     private Long eventId;
     private LocalDateTime openTimeStamp;
     private List<TicketGradeDto> ticketGradeDto;
-    private TicketStatus ticketStatus;
-    private Display display;
 }

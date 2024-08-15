@@ -50,12 +50,12 @@ public class GlabalExceptionHandler {
 
     @ExceptionHandler(MemberNotFoundException.class)
     public ResponseEntity<String> handleMemberNotFoundException(MemberNotFoundException ex) {
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("MemberNotFound Exception : ", HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<String> handleMemberNotFoundException(DataNotFoundException ex) {
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("DataNotFoundException : ",HttpStatus.NO_CONTENT);
     }
 
 }

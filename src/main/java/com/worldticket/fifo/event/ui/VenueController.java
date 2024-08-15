@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -26,5 +27,11 @@ public class VenueController {
     public ResponseEntity<VenueResponseDto> findVenueById(@RequestParam("venueId") Long venueId) {
         VenueResponseDto foundVenueDto = venueService.findVenueById(venueId);
         return ResponseEntity.ok(foundVenueDto);
+    }
+
+    @GetMapping("/findall")
+    public ResponseEntity<List<VenueResponseDto>> findVenues() {
+        List<VenueResponseDto> venues = venueService.findVenues();
+        return ResponseEntity.ok(venues);
     }
 }

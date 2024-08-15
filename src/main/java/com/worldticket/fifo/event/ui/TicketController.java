@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 
 @AllArgsConstructor
@@ -19,9 +18,9 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveTickets(@RequestBody TicketRequestDto ticketRequestDto) {
-        ticketService.save(ticketRequestDto);
-        return ResponseEntity.ok(Map.of("message", "티켓 저장이 완료됐습니다."));
+    public ResponseEntity<String> saveTickets(@RequestBody TicketRequestDto ticketRequestDto) {
+        ticketService.saveTickets(ticketRequestDto);
+        return ResponseEntity.ok("티켓 생성아 완료됐습니다.");
     }
 
     @GetMapping("/find")
@@ -30,9 +29,9 @@ public class TicketController {
         return ResponseEntity.ok(ticketResponseDtoList);
     }
 
-    @PutMapping("/selectTicket")
-    public ResponseEntity<?> findTicketsDetail(@RequestBody TicketDetailRequestDto ticketDetailRequestDto) {
-        String ticketStatus = ticketService.findTicketsDetail(ticketDetailRequestDto);
-        return ResponseEntity.ok(ticketStatus);
+    @GetMapping("/selectTicket")
+    public ResponseEntity<TicketResponseDto> findTicketsDetail(@RequestBody TicketDetailRequestDto ticketDetailRequestDto) {
+        TicketResponseDto ticketsDetail = ticketService.findTicketsDetail(ticketDetailRequestDto);
+        return ResponseEntity.ok(ticketsDetail);
     }
 }

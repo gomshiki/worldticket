@@ -1,5 +1,6 @@
 package com.worldticket.fifo.member.application;
 
+import com.worldticket.fifo.globalutilities.annotations.DataNotFoundException;
 import com.worldticket.fifo.globalutilities.provider.RedisProvider;
 import com.worldticket.fifo.globalutilities.provider.TokenProvider;
 import com.worldticket.fifo.member.domain.Member;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -39,7 +42,18 @@ public class MemberService implements UserDetailsService {
     }
 
     public void logout(String refreshToken) {
+        // 토큰에서 email 추출
         String email = tokenProvider.extractEmail(refreshToken);
+        // Redis에서 해당 이메일로 저장된 토큰 조회
+        String foundRefreshToken = Optional.ofNullable(redisProvider.getData(email))
+                .orElseThrow(() -> new DataNotFoundException("해당 회원의 정보가 없습니다."));
+
+        // Redis에 저장된 토큰과 전달된 refreshToken이 일치하는지 확인
+        if (!foundRefreshToken.equals(refreshToken)) {
+            throw new AuthorizationException("저장된 회원정보과 일치하지 않습니다.");
+        }
+
+        // 토큰이 존재하고 일치하면 삭제
         redisProvider.deleteData(email);
     }
 
