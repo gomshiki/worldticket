@@ -1,7 +1,8 @@
 rootProject.name = 'fifo'
 
-// settings.gradle 파일에서
-include 'member-module', 'order-module', 'ticket-module'
+include 'member-service'
+include 'ticket-service'
 include 'common-module'
-include 'api-module'
+include 'api-gateway'
+include 'eureka-server'
 

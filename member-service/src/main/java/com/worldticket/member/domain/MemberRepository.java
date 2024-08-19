@@ -1,0 +1,12 @@
+package com.worldticket.member.domain;
+
+import org.springframework.data.repository.CrudRepository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface MemberRepository extends CrudRepository<Member, Long> {
+    Optional<Member> findByEmail(String email);
+
+    Optional<Member> findByMemberNumber(UUID memberNumber);
+}

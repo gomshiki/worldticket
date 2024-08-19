@@ -1,8 +1,8 @@
 package com.worldticket;
 
-import com.worldticket.common.exception.AuthorizationException;
-import com.worldticket.common.exception.DataNotFoundException;
-import com.worldticket.common.exception.MemberNotFoundException;
+import com.worldticket.member.infra.AuthorizationException;
+import com.worldticket.member.infra.DataNotFoundException;
+import com.worldticket.member.infra.MemberNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

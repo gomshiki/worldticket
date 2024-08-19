@@ -19,14 +19,17 @@ subprojects {
 		mavenCentral()
 	}
 
+	dependencyManagement {
+		imports {
+			mavenBom "org.springframework.cloud:spring-cloud-dependencies:2021.0.6" // Spring Cloud BOM 추가
+		}
+	}
+
 	dependencies {
 		// 공통으로 사용하는 의존성 정의
 		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-		implementation 'org.springframework.boot:spring-boot-starter-validation'
 		implementation 'org.springframework.boot:spring-boot-starter-web'
-		implementation 'org.springframework.boot:spring-boot-starter-security'
-		implementation 'org.springframework.boot:spring-boot-starter-mail'
-		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 		// Postgresql
 		implementation 'org.postgresql:postgresql:42.7.2'
 		// JWT
@@ -35,17 +38,16 @@ subprojects {
 		runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
 		implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
-		implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.0'
+//		implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
 		compileOnly 'org.projectlombok:lombok'
 		annotationProcessor 'org.projectlombok:lombok'
 
-
 		implementation 'org.springframework.boot:spring-boot-devtools'
 		implementation 'org.springframework.boot:spring-boot-docker-compose'
-
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
-		testImplementation 'org.springframework.security:spring-security-test'
+
+//		testImplementation 'org.springframework.security:spring-security-test'
 		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	}
 
