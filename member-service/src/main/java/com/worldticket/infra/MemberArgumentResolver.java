@@ -4,7 +4,6 @@ import com.worldticket.application.MemberService;
 import com.worldticket.dto.MemberRequestDto;
 import com.worldticket.dto.MemberResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

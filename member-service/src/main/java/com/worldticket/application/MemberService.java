@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -25,6 +26,7 @@ public class MemberService implements UserDetailsService {
     private final TokenProvider tokenProvider;
     private final RedisProvider redisProvider;
 
+    @Transactional
     public void enrollMember(MemberEnrollRequestDto memberEnrollRequestDto) {
         Member member = MemberEnrollRequestDto.from(memberEnrollRequestDto);
         String encryptPassword = encryptUtil.encryptPassword(member.getPassword());

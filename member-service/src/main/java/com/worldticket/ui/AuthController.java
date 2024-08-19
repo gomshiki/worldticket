@@ -4,7 +4,6 @@ import com.worldticket.application.AuthService;
 import com.worldticket.application.EmailAuthService;
 import com.worldticket.dto.*;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

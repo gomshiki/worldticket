@@ -2,12 +2,10 @@ package com.worldticket;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@EnableFeignClients // Feign Client 활성화
 @SpringBootApplication
-public class ApiApplication {
+public class RootApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ApiApplication.class, args);
+        SpringApplication.run(RootApplication.class, args);
     }
 }

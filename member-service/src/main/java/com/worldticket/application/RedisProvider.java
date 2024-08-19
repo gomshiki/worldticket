@@ -1,7 +1,6 @@
 package com.worldticket.application;
 
 import com.worldticket.infra.DataNotFoundException;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
